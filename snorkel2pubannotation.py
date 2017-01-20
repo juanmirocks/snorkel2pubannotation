@@ -27,7 +27,6 @@ def set_provenance(ret, id_type, doc_id):
 
 def convert(text_file_path, denotations_file_path, relations_file_path):
     ret = copy.deepcopy(_TEMPLATE)
-    text = None
 
     with open(text_file_path) as fn:
         header = next(fn)
@@ -37,8 +36,12 @@ def convert(text_file_path, denotations_file_path, relations_file_path):
         line = next(fn)
         doc_id, text = line.split(_COLUMN_SEPARATION)
         ret = set_provenance(ret, id_type, doc_id)
-        # ret["text"] = text  # set text in the end, as it's already json-valid encoded
 
+        text = text.strip()
+        text = text[1:-1]
+        text = text.replace("\\n", "\n")
+
+        ret["text"] = text
 
     with open(denotations_file_path) as fn:
         next(fn)  # skip header
@@ -75,8 +78,6 @@ def convert(text_file_path, denotations_file_path, relations_file_path):
             ret["relations"].append(r)
 
             rel_count += 1
-
-    ret["text"] = text  # TODO still problematic -- wrong encoding
 
     ret = json.dumps(ret)
 
